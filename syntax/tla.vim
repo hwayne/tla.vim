@@ -1,13 +1,12 @@
+" vim: ft=vim:fdm=marker
+
 if version < 600
   syntax clear
 elseif exists("b:current_syntax")
   finish
 endif
 
-
-
-" ---------------------------------------for TLA+------------------------------------
-"highlight keywords
+" TLA+ Syntax {{{
 syn keyword tlaStatement		 CASE  OTHER  IF THEN  ELSE  LET IN
 syn keyword tlaBoolean TRUE FALSE BOOLEAN 
 syn keyword tlaNormalOperator	CHOOSE SUBSET UNION DOMAIN EXCEPT  ENABLE[D] ENABLE UNCHANGED 	 
@@ -19,6 +18,7 @@ syn keyword tlaConstant CONSTANT[S] VARIABLE[S] ASSUME
 
 syn keyword tla2Keyword THEOREM ACTION HAVE PICK SUFFICES ASSUMPTION HIDE PROOF TAKE AXIOM LAMBDA PROPOSITION TEMPORAL BY LEMMA PROVE USE COROLLARY NEW QED WITNESS DEF OBVIOUS RECURSIVE DEFINE OMITTED STATE DEFS
 
+" Negative lookahead prevents PlusCal algorithms from being matched
 syntax region tlaComment start="(\*\( --algorithm\)\@!" end="\*)"
 syntax match tlaSlashComment /\\\*.*/
 syntax region tlaString  start=/"/ skip=/\\"/ end=/"/
@@ -41,10 +41,12 @@ syn match tlaTemporalOperator /[^<]<>/
 syn match tlaTemporalOperator /\~>/
 syn match tlaFairnessOperator  /[WS]F_\(<\)\{0,2\}\w\+\(>\)\{0,2\}/
 
+" Defined to enable hiding it
 syn region tlaTranslation start=/\\\* BEGIN TRANSLATION/ end=/\\\* END TRANSLATION/ fold
-"-------------------------------- for TLA+ end--------------------------------
-"
-"-------------------------------- for PlusCal--------------------------------
+
+" }}}
+
+" PlusCal Syntax {{{
 syn keyword pluscalDeclaration contained variable[s]
 syn keyword pluscalConditional contained or either with if then else elsif while do await
 syn match pluscalConditional contained /end \(process\|algorithm\)\@!/
@@ -60,46 +62,35 @@ syn cluster pluscalCluster contains=pluscalDeclaration,pluscalConditional,plusca
 syn match pluscalMatchGroup /\((\* --\)\=\(end \)\=algorithm/
 syn region pluscal start=/(\* --algorithm.*/ end="end algorithm; \*)" matchgroup=pluscalMatchGroup contains=ALL
 syn region pluscalProcessScope start=/process[^;]/ end=/end process/ matchgroup=pluscalProcess contained containedin=pluscal contains=ALL
-"-------------------------------- for PlusCal end--------------------------------
+" }}}
+
+" Highlight {{{
+  hi def link tlaEnd            Comment
+  hi def link tlaComment			Comment
+  hi def link tlaSlashComment			Comment
+  hi def link tlaFunc			Ignore
+  hi def link tlaBoolean			Boolean
+  hi def link tlaString			String
+  hi def link tlaNumber			Number
+  hi def link tlaNormalOperator			Operator
+  hi def link tlaSetConditional			Operator
+  hi def link tlaBinaryOperator			Operator
+  hi def link tlaTemporalOperator Debug
+  hi def link tlaStatement	Conditional
+  hi def link tlaModule			Include
+  hi def link tlaConstant			Define
+  hi def link tlaFairnessOperator			Operator
+  hi def link tla2Keyword        Keyword
 
 
 
-if version >= 508 
-  if version < 508
-    command -nargs=+ HiLink hi link <args>
-  else
-    command -nargs=+ HiLink hi def link <args>
-  endif
-
-  HiLink tlaEnd            Comment
-  HiLink tlaComment			Comment
-  HiLink tlaSlashComment			Comment
-  HiLink tlaFunc			Ignore
-  HiLink tlaBoolean			Boolean
-  HiLink tlaString			String
-  HiLink tlaNumber			Number
-  HiLink tlaNormalOperator			Operator
-  HiLink tlaSetConditional			Operator
-  HiLink tlaBinaryOperator			Operator
-  HiLink tlaTemporalOperator Debug
-  HiLink tlaStatement	Conditional
-  HiLink tlaModule			Include
-  HiLink tlaConstant			Define
-  HiLink tlaFairnessOperator			Operator
-  HiLink tla2Keyword        Keyword
-
-
-
-  HiLink pluscalMatchGroup Function
-  HiLink pluscalProcess Function
-  HiLink pluscalLabel			Type
-  HiLink pluscalShareKeyword Comment
-  HiLink pluscalReservedWods Constant
-  HiLink pluscalDeclaration Define
-  HiLink pluscalConditional Conditional
+  hi def link pluscalMatchGroup Function
+  hi def link pluscalProcess Function
+  hi def link pluscalLabel			Type
+  hi def link pluscalShareKeyword Comment
+  hi def link pluscalReservedWods Constant
+  hi def link pluscalDeclaration Define
+  hi def link pluscalConditional Conditional
+" }}}
   
-  delcommand HiLink
-endif
-
 let b:current_syntax = "tla"
-
