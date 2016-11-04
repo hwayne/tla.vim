@@ -10,11 +10,12 @@ Vim plugin for TLA+ and PlusCal. Helps with writing specs. Since there's no offi
 * Some syntax highlighting
 * Handles `\*` as a comment
 * Autofolds PlusCal translations
+* Functions for SANY and PlusCal translation
 
 ## Planned Functionality
 
-* SANY
-* A PlusCal Translator function
+* Command line options for PlusCal translation
+* Documentation
 * Indentation
 * More syntax highlighting
 * Better handling of editing PlusCal algorithms
@@ -22,6 +23,7 @@ Vim plugin for TLA+ and PlusCal. Helps with writing specs. Since there's no offi
 
 ## Pie-In-The-Sky Functionality
 
+* Dumping SANY errors into a quickfix list
 * A way to highlight expressions that are valid but not TLC-compatible
 * Tags
 * Rewrite in something that isn't Vimscript
