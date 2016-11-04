@@ -9,7 +9,7 @@ endif
 " TLA+ Syntax {{{
 syn keyword tlaStatement		 CASE  OTHER  IF THEN  ELSE  LET IN
 syn keyword tlaBoolean TRUE FALSE BOOLEAN 
-syn keyword tlaNormalOperator	CHOOSE SUBSET UNION DOMAIN EXCEPT  ENABLE[D] ENABLE UNCHANGED 	 
+syn keyword tlaNormalOperator	CHOOSE SUBSET UNION DOMAIN EXCEPT ENABLE[D] ENABLE UNCHANGED 	 
 
 syn keyword tlaFunc Nat Real Int Infinity Head SelectSeq SubSeq Append Len Seq Tail IsFiniteSet Cardinality	BagCardinality BagIn BagOfAll BagToSet BagUnion CopiesIn EmptyBag IsABag SetToBag SubBag RTBound RTnow now Print PrintT Assert JavaTime Permutations SortSeq 
 
@@ -39,7 +39,7 @@ syn match tlaTemporalOperator /\\AA/
 syn match tlaTemporalOperator /\[\]/
 syn match tlaTemporalOperator /[^<]<>/
 syn match tlaTemporalOperator /\~>/
-syn match tlaFairnessOperator  /[WS]F_\(<\)\{0,2\}\w\+\(>\)\{0,2\}/
+syn match tlaFairnessOperator /[WS]F_\(<\)\{0,2\}\w\+\(>\)\{0,2\}/
 
 " Defined to enable hiding it
 syn region tlaTranslation start=/\\\* BEGIN TRANSLATION/ end=/\\\* END TRANSLATION/ fold
@@ -50,14 +50,14 @@ syn region tlaTranslation start=/\\\* BEGIN TRANSLATION/ end=/\\\* END TRANSLATI
 syn keyword pluscalDeclaration contained variable[s]
 syn keyword pluscalConditional contained or either with if then else elsif while do await
 syn match pluscalConditional contained /end \(process\|algorithm\)\@!/
-syn keyword pluscalReservedWods contained macro print procedure
+syn keyword pluscalReservedWords contained macro print procedure
 syn match pluscalProcess contained /\(fair \)\=process/
 syn match pluscalProcess contained /end process/
 syn match pluscalProcess contained /begin/
 "syn keyword pluscalToDo   call goto return contained
 syn keyword pluscalDebug contained assert print skip
 syn match pluscalLabel contained /[A-Z]\w*:/
-syn cluster pluscalCluster contains=pluscalDeclaration,pluscalConditional,pluscalReservedWods,pluscalDebug,pluscalLabel,pluscalProcess
+syn cluster pluscalCluster contains=pluscalDeclaration,pluscalConditional,pluscalReservedWords,pluscalDebug,pluscalLabel,pluscalProcess
 
 syn match pluscalMatchGroup /\((\* --\)\=\(end \)\=algorithm/
 syn region pluscal start=/(\* --algorithm.*/ end="end algorithm; \*)" matchgroup=pluscalMatchGroup contains=ALL
@@ -65,32 +65,30 @@ syn region pluscalProcessScope start=/process[^;]/ end=/end process/ matchgroup=
 " }}}
 
 " Highlight {{{
-  hi def link tlaEnd            Comment
-  hi def link tlaComment			Comment
-  hi def link tlaSlashComment			Comment
-  hi def link tlaFunc			Ignore
-  hi def link tlaBoolean			Boolean
-  hi def link tlaString			String
-  hi def link tlaNumber			Number
-  hi def link tlaNormalOperator			Operator
-  hi def link tlaSetConditional			Operator
-  hi def link tlaBinaryOperator			Operator
-  hi def link tlaTemporalOperator Debug
-  hi def link tlaStatement	Conditional
-  hi def link tlaModule			Include
-  hi def link tlaConstant			Define
-  hi def link tlaFairnessOperator			Operator
-  hi def link tla2Keyword        Keyword
+hi def link tlaEnd                 Comment
+hi def link tlaComment             Comment
+hi def link tlaSlashComment        Comment
+hi def link tlaFunc                Ignore
+hi def link tlaBoolean             Boolean
+hi def link tlaString              String
+hi def link tlaNumber              Number
+hi def link tlaNormalOperator      Operator
+hi def link tlaSetConditional      Operator
+hi def link tlaBinaryOperator      Operator
+hi def link tlaTemporalOperator    Debug
+hi def link tlaStatement           Conditional
+hi def link tlaModule              Include
+hi def link tlaConstant            Define
+hi def link tlaFairnessOperator    Operator
+hi def link tla2Keyword            Keyword
 
-
-
-  hi def link pluscalMatchGroup Function
-  hi def link pluscalProcess Function
-  hi def link pluscalLabel			Type
-  hi def link pluscalShareKeyword Comment
-  hi def link pluscalReservedWods Constant
-  hi def link pluscalDeclaration Define
-  hi def link pluscalConditional Conditional
+hi def link pluscalMatchGroup      Function
+hi def link pluscalProcess         Function
+hi def link pluscalLabel           Type
+hi def link pluscalShareKeyword    Comment
+hi def link pluscalReservedWords   Constant
+hi def link pluscalDeclaration     Define
+hi def link pluscalConditional     Conditional
 " }}}
   
 let b:current_syntax = "tla"
