@@ -11,9 +11,10 @@ let b:did_indent = 1
 let s:cpo_save = &cpo
 set cpo&vim
 
-setlocal indentkeys+=:,=end,=begin,=do
 setlocal indentexpr=TlaIndent()
-
+setlocal indentkeys+=<:>,=end,=begin,=do
+"setlocal
+ 
 " TODO deindents for pluscalOr and pluscalElsif
 let s:pluscal_scopes = [ 
   \ {'region': 'pluscalBeginRegion', 'start': 'pluscalStartBegin', 'end': 'pluscalEndBegin'},
@@ -31,8 +32,6 @@ function! s:SyntaxRegionsAt(line, column)
   return filter(s:SyntaxStackAt(a:line, a:column), 'v:val  =~ "Region"')
 endfunction
 
-" This will always return the outermost region
-" synstack orders broadest first
 function! s:InSyntaxRegion(region)
   return index(s:SyntaxStackAt(line("."), col(".")), a:region) != -1
 endfunction
@@ -52,10 +51,10 @@ endfunction
 " Each line has a 'region signature'. The end matchgroup is the same as the
 " start matchgroup, except that the the start has one extra 'region'
 " corresponding to its start.
-function! s:LineStartOfRegion(scope, signature)
-  for lineNum in reverse(range(1, v:lnum))
-    let region_start = s:LineMatchesSyntax(lineNum, a:scope["start"])
-    if region_start && s:SyntaxRegionsAt(lineNum, region_start) == a:signature + [a:scope["region"]]
+function! s:LineStartOfRegion(start, signature)
+  for lineNum in reverse(range(1, v:lnum - 1))
+    let region_start = s:LineMatchesSyntax(lineNum, a:start)
+    if region_start && s:SyntaxRegionsAt(lineNum, region_start) == a:signature
       return lineNum
     endif
   endfor
@@ -83,13 +82,23 @@ function! TlaIndent()
     " scope, not just deindent by one.
     let end_scope_col = s:LineMatchesSyntax(v:lnum, scope["end"])
     if end_scope_col != 0
-      let start_of_region = s:LineStartOfRegion(scope, s:SyntaxRegionsAt(v:lnum, end_scope_col))
+      let start_of_region = s:LineStartOfRegion(scope["start"], s:SyntaxRegionsAt(v:lnum, end_scope_col) + [scope["region"]])
       return indent(start_of_region)
     endif
   endfor
 
   "Tagtest!
-  "TODO tags should match indentation of previous tag in same scope
+  " This makes sure that there's only one level of tag indentation per region
+  " TODO only if the start of a line?
+  let label_col = s:LineMatchesSyntax(v:lnum, "pluscalLabel")
+  if label_col
+      let last_tagged_line = s:LineStartOfRegion("pluscalLabel", s:SyntaxRegionsAt(v:lnum, label_col))
+      if last_tagged_line
+        return indent(last_tagged_line)
+      endif
+  endif
+
+  " Tags create subindentations
   if s:LineMatchesSyntax(previousNum, "pluscalLabel")
     return indent(previousNum) + &tabstop
   endif
