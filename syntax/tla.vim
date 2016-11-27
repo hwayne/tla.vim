@@ -48,13 +48,19 @@ syn region tlaTranslation start=/\\\* BEGIN TRANSLATION/ end=/\\\* END TRANSLATI
 
 " PlusCal Syntax {{{
 syn keyword pluscalDeclaration contained variable[s]
-syn keyword pluscalConditional contained or either with if else elsif while await
+syn keyword pluscalConditional contained with if elsif while await
+syn keyword pluscalElse contained else
+hi def link pluscalElse pluscalConditional
+
+syn keyword pluscalOr contained or
+hi def link pluscalOr pluscalConditional
+
 syn keyword pluscalMethods contained macro procedure self define process
 "syn match pluscalProcess contained /\(fair \)\=process/
 "syn keyword pluscalToDo   call goto return contained
 syn keyword pluscalDebug contained assert print skip
 syn match pluscalLabel contained /[A-Z]\w*:/
-syn cluster pluscalCluster contains=pluscalDeclaration,pluscalConditional,pluscalMethods,pluscalDebug,pluscalLabel,pluscalProcess
+syn cluster pluscalCluster contains=pluscalDeclaration,pluscalConditional,pluscalMethods,pluscalDebug,pluscalLabel,pluscalProcess,pluscalElse
 
 syn region pluscalRegion matchgroup=pluscalMatchGroup start=/(\* --algorithm/ end=/end algorithm/ contains=tla.*,@pluscalCluster
 
@@ -62,10 +68,18 @@ syn region pluscalBeginRegion matchgroup=pluscalStartBegin start=/begin/ matchgr
 hi def link pluscalStartBegin pluscalMatchGroup
 hi def link pluscalEndBegin   pluscalMatchGroup
 
-syn region pluscalNestRegion matchgroup=pluscalStartNest start=/then\|do/ matchgroup=pluscalEndNest end=/end/ contained containedin=pluscalBeginRegion contains=tla.*,@pluscalCluster,pluscalNestRegion
-hi def link plusCalStartNest pluscalConditional
-hi def link plusCalEndNest   pluscalConditional
+syn region pluscalIfRegion matchgroup=pluscalStartIf start=/then/ matchgroup=pluscalEndIf end=/elsif\|end if/ contained containedin=pluscalBeginRegion contains=tla.*,@pluscalCluster,pluscalIfRegion
+hi def link pluscalStartIf pluscalConditional
+hi def link pluscalEndIf   pluscalConditional
 
+" TODO better nesting regions
+syn region pluscalDoRegion matchgroup=pluscalStartDo start=/do/ matchgroup=pluscalEndDo end=/end/ contained containedin=pluscalBeginRegion,plusCalIfRegion contains=tla.*,@pluscalCluster,pluscalDoRegion,pluscalIfRegion
+hi def link pluscalStartDo pluscalConditional
+hi def link pluscalEndDo   pluscalConditional
+
+syn region pluscalEitherRegion matchgroup=pluscalStartEither start=/either/ matchgroup=pluscalEndEither end=/end either/ contained containedin=pluscalBeginRegion,plusCalIfRegion,plusCalDoRegion contains=tla.*,@pluscalCluster,pluscalEitherRegion,pluscalIfRegion,pluscalDoRegion,pluscalOr 
+hi def link pluscalStartEither pluscalConditional
+hi def link pluscalEndEither pluscalConditional
 " pluscalDefineRegion
 " pluscalVariablesRegion?
 " pluscalEitherRegion

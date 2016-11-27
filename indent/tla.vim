@@ -1,7 +1,7 @@
 " File: tla.vim
 " Author: Hillel Wayne
 " Description: Indent file for TLA+
-" Last Modified: Buffer overrun
+" Last Modified: Wat
 
 if exists("b:did_indent")
   " finish
@@ -12,13 +12,14 @@ let s:cpo_save = &cpo
 set cpo&vim
 
 setlocal indentexpr=TlaIndent()
-setlocal indentkeys+=<:>,=end,=begin,=do
+setlocal indentkeys+=<:>,=end,=begin,=do,=or
 "setlocal
  
-" TODO deindents for pluscalOr and pluscalElsif
 let s:pluscal_scopes = [ 
   \ {'region': 'pluscalBeginRegion', 'start': 'pluscalStartBegin', 'end': 'pluscalEndBegin'},
-  \ {'region': 'pluscalNestRegion', 'start': 'pluscalStartNest', 'end': 'pluscalEndNest'},
+  \ {'region': 'pluscalIfRegion', 'start': 'pluscalStartIf', 'end': 'pluscalEndIf', 'mid': 'pluscalElse'},
+  \ {'region': 'pluscalEitherRegion', 'start': 'pluscalStartEither', 'end': 'pluscalEndEither', 'mid': 'pluscalOr'},
+  \ {'region': 'pluscalDoRegion', 'start': 'pluscalStartDo', 'end': 'pluscalEndDo'},
   \ ]
 
 function! s:SyntaxStackAt(line, column)
@@ -27,7 +28,6 @@ function! s:SyntaxStackAt(line, column)
   return map(synstack(a:line, a:column), 'synIDattr(v:val, "name")')
 endfunction
 
-" Helper function
 function! s:SyntaxRegionsAt(line, column)
   return filter(s:SyntaxStackAt(a:line, a:column), 'v:val  =~ "Region"')
 endfunction
@@ -52,6 +52,7 @@ endfunction
 " start matchgroup, except that the the start has one extra 'region'
 " corresponding to its start.
 function! s:LineStartOfRegion(start, signature)
+  " v:lnum - 1 is a hack to make this work more easily with labels
   for lineNum in reverse(range(1, v:lnum - 1))
     let region_start = s:LineMatchesSyntax(lineNum, a:start)
     if region_start && s:SyntaxRegionsAt(lineNum, region_start) == a:signature
@@ -71,19 +72,25 @@ function! TlaIndent()
   " We handle this after TLA+ so that if we have TLA+ in our PlusCal
   " We'll add on their rules instead!
   for scope in s:pluscal_scopes
-    " Test we're in a region we need to indent
-    " TODO should this go after the end scope test?
-    if s:InSyntaxRegion(scope["region"]) && s:LineMatchesSyntax(previousNum, scope["start"])
-      return indent(previousNum) + &tabstop
-    endif
-
     " Test we're in a region we need to unindent
     " Since tags also create indents, we have to match to the start of the
     " scope, not just deindent by one.
+    " TODO DRY this up
     let end_scope_col = s:LineMatchesSyntax(v:lnum, scope["end"])
-    if end_scope_col != 0
+    if end_scope_col
       let start_of_region = s:LineStartOfRegion(scope["start"], s:SyntaxRegionsAt(v:lnum, end_scope_col) + [scope["region"]])
       return indent(start_of_region)
+    endif
+
+    let mid_scope_col = s:LineMatchesSyntax(v:lnum, get(scope, "mid", "NULL"))
+    if mid_scope_col
+      let start_of_region = s:LineStartOfRegion(scope["start"], s:SyntaxRegionsAt(v:lnum, mid_scope_col) + [])
+      return indent(start_of_region)
+    endif
+
+    " Test we're in a region we need to indent
+    if s:InSyntaxRegion(scope["region"]) && (s:LineMatchesSyntax(previousNum, scope["start"]) || s:LineMatchesSyntax(previousNum, get(scope, "mid", "NULL") ))
+      return indent(previousNum) + &tabstop
     endif
   endfor
 
@@ -92,7 +99,7 @@ function! TlaIndent()
   " TODO only if the start of a line?
   let label_col = s:LineMatchesSyntax(v:lnum, "pluscalLabel")
   if label_col
-      let last_tagged_line = s:LineStartOfRegion("pluscalLabel", s:SyntaxRegionsAt(v:lnum, label_col))
+      let last_tagged_line = s:LineStartOfRegion("pluscalLabel", s:SyntaxRegionsAt(v:lnum, label_col) + [])
       if last_tagged_line
         return indent(last_tagged_line)
       endif
