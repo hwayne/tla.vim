@@ -7,11 +7,9 @@ elseif exists("b:current_syntax")
 endif
 
 " TLA+ Syntax {{{
-syn keyword tlaStatement		 CASE  OTHER  IF THEN  ELSE  LET IN
+syn keyword tlaStatement CASE OTHER IF THEN ELSE LET IN
 syn keyword tlaBoolean TRUE FALSE BOOLEAN 
-syn keyword tlaNormalOperator	CHOOSE SUBSET UNION DOMAIN EXCEPT ENABLE[D] ENABLE UNCHANGED 	 
-
-syn keyword tlaFunc Nat Real Int Infinity Head SelectSeq SubSeq Append Len Seq Tail IsFiniteSet Cardinality	BagCardinality BagIn BagOfAll BagToSet BagUnion CopiesIn EmptyBag IsABag SetToBag SubBag RTBound RTnow now Print PrintT Assert JavaTime Permutations SortSeq 
+syn keyword tlaNormalOperator CHOOSE SUBSET UNION DOMAIN EXCEPT ENABLE[D] ENABLE UNCHANGED   
 
 syn keyword tlaModule MODULE EXTEND[S] INSTANCE WITH LOCAL
 syn keyword tlaConstant CONSTANT[S] VARIABLE[S] ASSUME
@@ -21,10 +19,11 @@ syn keyword tla2Keyword THEOREM ACTION HAVE PICK SUFFICES ASSUMPTION HIDE PROOF 
 " Negative lookahead prevents PlusCal algorithms from being matched
 syntax region tlaComment start="(\*\( --algorithm\)\@!" end="\*)" contains=tlaComment
 syntax match tlaSlashComment /\\\*.*/
+
 syntax region tlaString  start=/"/ skip=/\\"/ end=/"/
 syntax keyword tlaString STRING
 
-syntax match tlaNumber /-\?\d\+/
+syntax match tlaNumber /-\?\d\+\.\d\+/
 syntax match tlaSetConditional /\\E/ 
 syntax match tlaSetConditional /\\A/ 
 "syntax match tlaSetConditional /=>/
@@ -41,10 +40,14 @@ syn match tlaTemporalOperator /[^<]<>/
 syn match tlaTemporalOperator /\~>/
 syn match tlaFairnessOperator /[WS]F_\(<\)\{0,2\}\w\+\(>\)\{0,2\}/
 
+syn region tlaSetRegion matchgroup=tlaStartSet start=/{/ matchgroup=tlaEndSet end=/}/ contains=tla.*
+syn region tlaFunctionRegion matchgroup=tlaStartFunction start=/\[/ matchgroup=tlaEndFunction end=/\]/ contains=tla.*
+
 " Defined to enable hiding it
 syn region tlaTranslation start=/\\\* BEGIN TRANSLATION/ end=/\\\* END TRANSLATION/ fold
 
 " }}}
+" ^$ is good for whitespace delimiters?
 
 " PlusCal Syntax {{{
 syn keyword pluscalDeclaration contained variable[s]
@@ -62,6 +65,7 @@ syn keyword pluscalDebug contained assert print skip
 syn match pluscalLabel contained /[A-Z]\w*:/
 syn cluster pluscalCluster contains=pluscalDeclaration,pluscalConditional,pluscalMethods,pluscalDebug,pluscalLabel,pluscalProcess,pluscalElse
 
+"BUG doesn't handle single process apps
 syn region pluscalRegion matchgroup=pluscalMatchGroup start=/(\* --algorithm/ end=/end algorithm/ contains=tla.*,@pluscalCluster
 
 syn region pluscalBeginRegion matchgroup=pluscalStartBegin start=/begin/ matchgroup=pluscalEndBegin end=/end/ contained containedin=pluscalRegion contains=tla.*,@pluscalCluster
@@ -81,9 +85,6 @@ syn region pluscalEitherRegion matchgroup=pluscalStartEither start=/either/ matc
 hi def link pluscalStartEither pluscalConditional
 hi def link pluscalEndEither pluscalConditional
 " pluscalDefineRegion
-" pluscalVariablesRegion?
-" pluscalEitherRegion
-" pluscalIfRegion
 
 " }}}
 
@@ -112,5 +113,4 @@ hi def link pluscalLabel           Type
 hi def link pluscalDeclaration     Define
 hi def link pluscalConditional     Conditional
 " }}}
-  
 let b:current_syntax = "tla"

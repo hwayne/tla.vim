@@ -3,8 +3,10 @@
 " Description: Indent file for TLA+
 " Last Modified: Wat
 
+" This is both super elegant and way too slow.
+
 if exists("b:did_indent")
-  " finish
+   finish
 endif
 
 let b:did_indent = 1
@@ -15,6 +17,10 @@ setlocal indentexpr=TlaIndent()
 setlocal indentkeys+=<:>,=end,=begin,=do,=or
 "setlocal
  
+let s:tla_open_scopes = [] " LET-IN, IF-THEN, CASE
+let s:tla_closed_scopes = []
+"  \ {'region': 'tlaSetRegion', 'start': 'tlaStartSet', 'end': 'tlaEndSet'},
+"  \ {'region': 'tlaFunctionRegion', 'start': 'tlaStartFunction', 'end': 'tlaEndFunction'},
 let s:pluscal_scopes = [ 
   \ {'region': 'pluscalBeginRegion', 'start': 'pluscalStartBegin', 'end': 'pluscalEndBegin'},
   \ {'region': 'pluscalIfRegion', 'start': 'pluscalStartIf', 'end': 'pluscalEndIf', 'mid': 'pluscalElse'},
@@ -42,6 +48,19 @@ function! s:LineMatchesSyntax(linenum, match)
   let columns = len(getline(a:linenum))
   for i in range(1, columns)
     if s:SyntaxStackAt(a:linenum, i)[-1] ==# a:match
+      return i
+    end if
+  endfor
+  return 0
+endfunction
+
+
+" Returns index of first character in line with match
+" _and_ the same region stack. For /\ and \/.
+function! s:LineMatchesSyntaxWithRegion(linenum, match, regions)
+  let columns = len(getline(a:linenum))
+  for i in range(1, columns)
+    if s:SyntaxStackAt(a:linenum, i)[-1] ==# a:match && s:SyntaxRegionsAt(a:linenum, i) == a:regions
       return i
     end if
   endfor
@@ -104,10 +123,25 @@ function! TlaIndent()
         return indent(last_tagged_line)
       endif
   endif
-
+" tlaBinaryOperator
   " Tags create subindentations
   if s:LineMatchesSyntax(previousNum, "pluscalLabel")
     return indent(previousNum) + &tabstop
+  endif
+
+  " TLA SECTION
+  " We assume an empty line is a sign the operator is complete, and so we can
+  " assume it's back to square zero.
+
+  if previousNum != v:lnum - 1
+    return 0
+  endif
+
+  " /\ \/ : matching
+  " Match indentation to /\ with same region
+  let logic_col = s:LineMatchesSyntaxWithRegion(previousNum, "tlaBinaryOperator", s:SyntaxRegionsAt(line('.'), col('.')))
+  if logic_col
+    return logic_col - 1
   endif
 
   return indent(previousNum)
