@@ -29,3 +29,10 @@ Vim plugin for TLA+ and PlusCal. Helps with writing specs. Since there's no offi
 * Tags
 * Rewrite in something that isn't Vimscript
 * Making sure it plays nice with TLA+2
+
+## Installation
+
+Using Pathogen, you can install the plugin with:
+
+    cd ~/.vim/bundle && \
+    git clone https://github.com/hwayne/tla.vim.git
