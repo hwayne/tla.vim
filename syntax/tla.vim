@@ -17,7 +17,7 @@ syn keyword tlaConstant CONSTANT[S] VARIABLE[S] ASSUME
 syn keyword tla2Keyword THEOREM ACTION HAVE PICK SUFFICES ASSUMPTION HIDE PROOF TAKE AXIOM LAMBDA PROPOSITION TEMPORAL BY LEMMA PROVE USE COROLLARY NEW QED WITNESS DEF OBVIOUS RECURSIVE DEFINE OMITTED STATE DEFS
 
 " Negative lookahead prevents PlusCal algorithms from being matched
-syntax region tlaComment start="(\*\( --algorithm\)\@!" end="\*)" contains=tlaComment
+syntax region tlaComment start="(\*\( --\(fair\|algorithm\)\)\@!" end="\*)" contains=tlaComment
 syntax match tlaSlashComment /\\\*.*/
 
 syntax region tlaString  start=/"/ skip=/\\"/ end=/"/
@@ -66,7 +66,7 @@ syn match pluscalLabel contained /[A-Z]\w*:/
 syn cluster pluscalCluster contains=pluscalDeclaration,pluscalConditional,pluscalMethods,pluscalDebug,pluscalLabel,pluscalProcess,pluscalElse
 
 "BUG doesn't handle single process apps
-syn region pluscalRegion matchgroup=pluscalMatchGroup start=/(\* --algorithm/ end=/end algorithm/ contains=tla.*,@pluscalCluster
+syn region pluscalRegion matchgroup=pluscalMatchGroup start=/(\* --\(fair\|algorithm\)/ end=/end algorithm/ contains=tla.*,@pluscalCluster
 
 syn region pluscalBeginRegion matchgroup=pluscalStartBegin start=/begin/ matchgroup=pluscalEndBegin end=/end/ contained containedin=pluscalRegion contains=tla.*,@pluscalCluster
 hi def link pluscalStartBegin pluscalMatchGroup
