@@ -1,3 +1,7 @@
+# DEPRECATED
+
+Use the treesitter grammar instead
+
 # tla.vim
 
 Vim plugin for TLA+ and PlusCal. Helps with writing specs. Since there's no official TLA+ styleguide, it currently just implements my preferences. The plugin makes the following assumptions:
